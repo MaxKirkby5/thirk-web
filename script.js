@@ -247,8 +247,8 @@
     const ctx = asciiWomanCanvas.getContext("2d");
     if (ctx) {
       const charset = "160/90";
-      const stages = ["PUBLISH", "OXFORD", "RESEARCH", "CRICKET"];
-      const stagePositions = [9, 24, 40, 55];
+      const stages = ["OXFORD", "RESEARCH", "CRICKET"];
+      const stagePositions = [12, 32, 52];
       const cols = 68;
       const rows = 22;
       const tile = asciiWomanCanvas.closest(".interactive-tile");
@@ -309,19 +309,18 @@
         [[-2, 3], [2, 3]].forEach(([dx, dy]) => put(map, cx + dx, baseY + dy, "w"));
 
         if (action === 0) {
+          // Reading/books pose.
           [[1, -6], [2, -6], [3, -6], [4, -6], [1, -5], [2, -5], [3, -5], [4, -5], [5, -5]].forEach(([dx, dy]) =>
             put(map, cx + dx, baseY + dy, "w")
           );
         } else if (action === 1) {
-          [[-1, -7], [-2, -8], [-3, -9], [1, -7], [2, -8], [3, -9], [-4, -9], [4, -9]].forEach(([dx, dy]) =>
-            put(map, cx + dx, baseY + dy, "w")
-          );
-        } else if (action === 2) {
+          // Research/writing pose.
           [[1, -6], [2, -6], [3, -6], [4, -6], [5, -6], [6, -6], [1, -5], [2, -5], [3, -5]].forEach(([dx, dy]) =>
             put(map, cx + dx, baseY + dy, "w")
           );
           [[-1, -6], [-2, -5], [-3, -4]].forEach(([dx, dy]) => put(map, cx + dx, baseY + dy, "w"));
         } else {
+          // Cricket pose.
           [[1, -7], [2, -8], [3, -9], [4, -10], [4, -9], [2, -7], [3, -8]].forEach(([dx, dy]) =>
             put(map, cx + dx, baseY + dy, "w")
           );
@@ -336,19 +335,7 @@
           "/______//",
           "(______(/",
         ];
-        drawPattern(map, cx + 7, baseY - 7, pattern);
-      }
-
-      function drawCap(map, cx, baseY) {
-        const pattern = [
-          "    ▄▄▄▄▄▄▄    ",
-          " ▄███████████▄ ",
-          "███████████████",
-          " ▀███████████▀ ",
-          "    ▀█████▀    ",
-          "      ▐█▌      ",
-        ];
-        drawPattern(map, cx + 4, baseY - 16, pattern);
+        drawPattern(map, cx + 3, baseY - 7, pattern);
       }
 
       function drawPen(map, cx, baseY) {
@@ -365,7 +352,7 @@
           "  \\__/   ",
           "   `     ",
         ];
-        drawPattern(map, cx + 8, baseY - 11, pattern);
+        drawPattern(map, cx + 3, baseY - 10, pattern);
       }
 
       function drawCricket(map, cx, baseY) {
@@ -387,8 +374,8 @@
           "_█████_",
           "_▀███▀_",
         ];
-        drawPattern(map, cx + 8, baseY - 15, pattern);
-        put(map, cx + 20, baseY - 9, "o", "o");
+        drawPattern(map, cx + 3, baseY - 14, pattern);
+        put(map, cx + 15, baseY - 8, "o", "o");
       }
 
       function easeOutCubic(t) {
@@ -411,21 +398,20 @@
         ctx.fillRect(0, 0, rect.width, rect.height);
 
         const scene = new Map();
-        const stage = Math.min(3, Math.floor(state.progress));
+        const stage = Math.min(stages.length - 1, Math.floor(state.progress));
         const localProgress = state.progress - stage;
         let x = stagePositions[stage];
 
-        if (stage < 3) {
-          const t = Math.min(localProgress / 0.86, 1);
+        if (stage < stages.length - 1) {
+          const t = Math.min(localProgress / 0.92, 1);
           x = stagePositions[stage] + (stagePositions[stage + 1] - stagePositions[stage]) * easeOutCubic(t);
         }
 
         const baseY = 16;
         drawWoman(scene, Math.round(x), baseY, stage);
         if (stage === 0) drawBooks(scene, Math.round(x), baseY);
-        if (stage === 1) drawCap(scene, Math.round(x), baseY);
-        if (stage === 2) drawPen(scene, Math.round(x), baseY);
-        if (stage === 3) drawCricket(scene, Math.round(x), baseY);
+        if (stage === 1) drawPen(scene, Math.round(x), baseY);
+        if (stage === 2) drawCricket(scene, Math.round(x), baseY);
 
         ctx.textBaseline = "top";
         ctx.textAlign = "left";
@@ -451,9 +437,9 @@
       function animateAsciiWoman(now) {
         const dt = Math.min(0.05, (now - (animateAsciiWoman.last || now)) / 1000);
         animateAsciiWoman.last = now;
-        const speed = state.hover ? 0.95 : 0.38;
+        const speed = state.hover ? 0.42 : 0.16;
         state.progress += dt * speed;
-        if (state.progress > 4.2) {
+        if (state.progress > stages.length + 0.2) {
           state.progress = 0;
         }
         drawAsciiFrame(now / 1000);
@@ -481,59 +467,132 @@
     }
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const source =
-      " OXFORD LSE COPYWRITER MEDIA CULTURE STORYTELLING PR STRATEGY LITERARY RESEARCH SOCIAL ";
-    const particles = [];
+    const campaignPhrases = [
+      "Jameson / St. Patrick’s Eve",
+      "University of South Carolina",
+      "Philidelphia Eagles",
+      "Rocket Mortgage",
+      "Marriott Bonvoy x Visa",
+    ];
+    const namePhrase = "Annys Thirkell-Jones";
+    const grayPalette = ["#d6d6dc", "#bfc0c8", "#a7a8b1", "#90919b", "#7a7b86"];
+    const floatingWords = [];
     const mouse = { x: -9999, y: -9999 };
+    let lastFrame = 0;
+
+    function createStructuredWords(rect) {
+      floatingWords.length = 0;
+      const laneCount = 6;
+      const laneHeight = rect.height / (laneCount + 1);
+      let lane = 1;
+
+      campaignPhrases.forEach((text, i) => {
+        const color = grayPalette[i % grayPalette.length];
+        const direction = i % 2 === 0 ? 1 : -1;
+        const size = 16 + (i % 2) * 2;
+        const speed = (9 + i * 1.1) * direction;
+
+        // Two structured copies per phrase for a layered, non-random field.
+        for (let copy = 0; copy < 2; copy += 1) {
+          floatingWords.push({
+            text,
+            color,
+            alpha: 0.5 + copy * 0.15,
+            size,
+            weight: 500,
+            x: copy === 0 ? -120 - i * 24 : rect.width * 0.52 + i * 16,
+            y: laneHeight * lane + (copy === 0 ? -6 : 6),
+            baseY: laneHeight * lane + (copy === 0 ? -6 : 6),
+            vx: speed * (copy === 0 ? 1 : 0.86),
+            amp: 6 + ((i + copy) % 3) * 2.5,
+            freq: 0.6 + ((i + copy) % 4) * 0.15,
+            phase: (i + 1) * 0.9 + copy * 0.6,
+            width: 0,
+          });
+        }
+
+        lane = lane >= laneCount ? 1 : lane + 1;
+      });
+
+      // Signature phrase in requested pink.
+      floatingWords.push({
+        text: namePhrase,
+        color: "#EA3365",
+        alpha: 0.92,
+        size: 21,
+        weight: 600,
+        x: rect.width * 0.12,
+        y: laneHeight * 3.1,
+        baseY: laneHeight * 3.1,
+        vx: 10.5,
+        amp: 8,
+        freq: 0.9,
+        phase: 0.4,
+        width: 0,
+      });
+      floatingWords.push({
+        text: namePhrase,
+        color: "#EA3365",
+        alpha: 0.78,
+        size: 19,
+        weight: 600,
+        x: rect.width * 0.62,
+        y: laneHeight * 5.0,
+        baseY: laneHeight * 5.0,
+        vx: -8.5,
+        amp: 7,
+        freq: 0.82,
+        phase: 1.4,
+        width: 0,
+      });
+    }
 
     function resizeCanvas() {
       const rect = heroCanvas.getBoundingClientRect();
       heroCanvas.width = Math.floor(rect.width * dpr);
       heroCanvas.height = Math.floor(rect.height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      const count = Math.min(220, Math.max(90, Math.floor((rect.width * rect.height) / 9500)));
-      particles.length = 0;
-      for (let i = 0; i < count; i += 1) {
-        particles.push({
-          x: Math.random() * rect.width,
-          y: Math.random() * rect.height,
-          vx: (Math.random() - 0.5) * 0.28,
-          vy: (Math.random() - 0.5) * 0.28,
-          ch: source[Math.floor(Math.random() * source.length)] || ".",
-          size: 10 + Math.random() * 4,
-          alpha: 0.18 + Math.random() * 0.35,
-        });
-      }
+      createStructuredWords(rect);
     }
 
-    function draw() {
+    function draw(now) {
       const rect = heroCanvas.getBoundingClientRect();
+      const dt = Math.min(0.05, (now - (lastFrame || now)) / 1000);
+      lastFrame = now;
       ctx.clearRect(0, 0, rect.width, rect.height);
       ctx.fillStyle = "#090a0e";
       ctx.fillRect(0, 0, rect.width, rect.height);
-      ctx.font = "12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
-      ctx.textBaseline = "middle";
 
-      particles.forEach((p) => {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < -8 || p.x > rect.width + 8) p.vx *= -1;
-        if (p.y < -8 || p.y > rect.height + 8) p.vy *= -1;
+      floatingWords.forEach((word) => {
+        ctx.font = `${word.weight} ${word.size}px CircularBook, Helvetica, Arial, sans-serif`;
+        word.width = ctx.measureText(word.text).width;
 
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const distSq = dx * dx + dy * dy;
-        if (distSq < 120 * 120) {
-          const force = (120 * 120 - distSq) / (120 * 120);
-          p.x += (dx / 120) * force * 1.6;
-          p.y += (dy / 120) * force * 1.6;
+        word.x += word.vx * dt;
+        if (word.vx > 0 && word.x - 20 > rect.width) {
+          word.x = -word.width - 30;
+        }
+        if (word.vx < 0 && word.x + word.width + 20 < 0) {
+          word.x = rect.width + 30;
         }
 
-        ctx.globalAlpha = p.alpha;
-        ctx.fillStyle = "#f7f7fb";
-        ctx.font = `${p.size}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
-        ctx.fillText(p.ch, p.x, p.y);
+        const y = word.baseY + Math.sin(now * 0.001 * word.freq + word.phase) * word.amp;
+        let drawX = word.x;
+        let drawY = y;
+        const centerX = drawX + word.width * 0.5;
+        const centerY = drawY;
+        const dx = centerX - mouse.x;
+        const dy = centerY - mouse.y;
+        const distSq = dx * dx + dy * dy;
+        if (distSq < 160 * 160) {
+          const force = (160 * 160 - distSq) / (160 * 160);
+          drawX += (dx / 160) * force * 22;
+          drawY += (dy / 160) * force * 10;
+        }
+
+        ctx.globalAlpha = word.alpha;
+        ctx.fillStyle = word.color;
+        ctx.textBaseline = "middle";
+        ctx.fillText(word.text, drawX, drawY);
       });
 
       ctx.globalAlpha = 1;
@@ -551,7 +610,7 @@
     });
 
     resizeCanvas();
-    draw();
+    window.requestAnimationFrame(draw);
     window.addEventListener("resize", resizeCanvas);
   }
 })();
