@@ -477,7 +477,6 @@
       { text: "Annys Thirkell-Jones", color: "#EA3365", alpha: 0.95, size: 19, weight: 600, family: "CircularBold" },
       { text: "Annys Thirkell-Jones", color: "#EA3365", alpha: 0.8, size: 18, weight: 600, family: "CircularBold" },
     ];
-    const mouse = { x: -9999, y: -9999 };
     const lines = [];
     const glyphs = [];
     let lastFrame = 0;
@@ -586,21 +585,7 @@
       glyphs.forEach((glyph) => {
         const line = glyph.line;
         const anchorX = line.x + glyph.offsetX;
-        const anchorY =
-          line.y +
-          Math.sin(now * 0.001 * line.freq + line.phase) * line.amp +
-          Math.sin(now * 0.002 + glyph.driftPhase) * 2.2;
-
-        const dx = glyph.x - mouse.x;
-        const dy = glyph.y - mouse.y;
-        const distSq = dx * dx + dy * dy;
-        const repelRadius = 230;
-        if (distSq < repelRadius * repelRadius) {
-          const dist = Math.sqrt(distSq) || 1;
-          const force = Math.pow(1 - dist / repelRadius, 2);
-          glyph.vx += (dx / dist) * 64 * force * step;
-          glyph.vy += (dy / dist) * 42 * force * step;
-        }
+        const anchorY = line.y;
 
         glyph.vx += (anchorX - glyph.x) * 0.09 * step;
         glyph.vy += (anchorY - glyph.y) * 0.09 * step;
@@ -619,16 +604,6 @@
       ctx.globalAlpha = 1;
       window.requestAnimationFrame(draw);
     }
-
-    heroCanvas.addEventListener("mousemove", (event) => {
-      const rect = heroCanvas.getBoundingClientRect();
-      mouse.x = event.clientX - rect.left;
-      mouse.y = event.clientY - rect.top;
-    });
-    heroCanvas.addEventListener("mouseleave", () => {
-      mouse.x = -9999;
-      mouse.y = -9999;
-    });
 
     resizeCanvas();
     window.requestAnimationFrame(draw);
