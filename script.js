@@ -467,83 +467,58 @@
     }
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const campaignPhrases = [
-      "Jameson / St. Patrick’s Eve",
-      "University of South Carolina",
-      "Philidelphia Eagles",
-      "Rocket Mortgage",
-      "Marriott Bonvoy x Visa",
+    const phraseConfigs = [
+      { text: "Jameson / St. Patrick’s Eve", color: "#1C4620", alpha: 0.78, size: 16, weight: 500 },
+      { text: "University of South Carolina", color: "#691111", alpha: 0.74, size: 16, weight: 500 },
+      { text: "Philidelphia Eagles", color: "#1E4B53", alpha: 0.72, size: 15, weight: 500 },
+      { text: "Rocket Mortgage", color: "#851E26", alpha: 0.72, size: 15, weight: 500 },
+      { text: "Marriott Bonvoy x Visa", color: "#5923B5", alpha: 0.72, size: 15, weight: 500 },
+      { text: "Annys Thirkell-Jones", color: "#EA3365", alpha: 0.95, size: 19, weight: 600 },
+      { text: "Annys Thirkell-Jones", color: "#EA3365", alpha: 0.8, size: 18, weight: 600 },
     ];
-    const namePhrase = "Annys Thirkell-Jones";
-    const grayPalette = ["#d6d6dc", "#bfc0c8", "#a7a8b1", "#90919b", "#7a7b86"];
-    const floatingWords = [];
     const mouse = { x: -9999, y: -9999 };
+    const lines = [];
+    const glyphs = [];
     let lastFrame = 0;
 
-    function createStructuredWords(rect) {
-      floatingWords.length = 0;
-      const laneCount = 6;
+    function createStructuredGlyphs(rect) {
+      lines.length = 0;
+      glyphs.length = 0;
+      const laneCount = 7;
       const laneHeight = rect.height / (laneCount + 1);
-      let lane = 1;
 
-      campaignPhrases.forEach((text, i) => {
-        const color = grayPalette[i % grayPalette.length];
+      phraseConfigs.forEach((config, i) => {
         const direction = i % 2 === 0 ? 1 : -1;
-        const size = 16 + (i % 2) * 2;
-        const speed = (9 + i * 1.1) * direction;
+        const charStep = config.size * 0.64;
+        const width = config.text.length * charStep;
+        const lane = (i % laneCount) + 1;
+        const startX = direction > 0 ? -width - 60 - i * 20 : rect.width + 80 + i * 22;
 
-        // Two structured copies per phrase for a layered, non-random field.
-        for (let copy = 0; copy < 2; copy += 1) {
-          floatingWords.push({
-            text,
-            color,
-            alpha: 0.5 + copy * 0.15,
-            size,
-            weight: 500,
-            x: copy === 0 ? -120 - i * 24 : rect.width * 0.52 + i * 16,
-            y: laneHeight * lane + (copy === 0 ? -6 : 6),
-            baseY: laneHeight * lane + (copy === 0 ? -6 : 6),
-            vx: speed * (copy === 0 ? 1 : 0.86),
-            amp: 6 + ((i + copy) % 3) * 2.5,
-            freq: 0.6 + ((i + copy) % 4) * 0.15,
-            phase: (i + 1) * 0.9 + copy * 0.6,
-            width: 0,
+        const line = {
+          ...config,
+          charStep,
+          width,
+          x: startX,
+          baseY: laneHeight * lane + (i % 2 === 0 ? -6 : 8),
+          vx: (14 + i * 1.8) * direction,
+          amp: 10 + (i % 3) * 4,
+          freq: 0.58 + (i % 4) * 0.14,
+          phase: i * 0.8,
+        };
+        lines.push(line);
+
+        [...config.text].forEach((char, charIndex) => {
+          glyphs.push({
+            line,
+            char,
+            offsetX: charIndex * charStep,
+            driftPhase: charIndex * 0.26 + i * 0.5,
+            x: line.x + charIndex * charStep,
+            y: line.baseY,
+            vx: 0,
+            vy: 0,
           });
-        }
-
-        lane = lane >= laneCount ? 1 : lane + 1;
-      });
-
-      // Signature phrase in requested pink.
-      floatingWords.push({
-        text: namePhrase,
-        color: "#EA3365",
-        alpha: 0.92,
-        size: 21,
-        weight: 600,
-        x: rect.width * 0.12,
-        y: laneHeight * 3.1,
-        baseY: laneHeight * 3.1,
-        vx: 10.5,
-        amp: 8,
-        freq: 0.9,
-        phase: 0.4,
-        width: 0,
-      });
-      floatingWords.push({
-        text: namePhrase,
-        color: "#EA3365",
-        alpha: 0.78,
-        size: 19,
-        weight: 600,
-        x: rect.width * 0.62,
-        y: laneHeight * 5.0,
-        baseY: laneHeight * 5.0,
-        vx: -8.5,
-        amp: 7,
-        freq: 0.82,
-        phase: 1.4,
-        width: 0,
+        });
       });
     }
 
@@ -552,47 +527,58 @@
       heroCanvas.width = Math.floor(rect.width * dpr);
       heroCanvas.height = Math.floor(rect.height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      createStructuredWords(rect);
+      createStructuredGlyphs(rect);
     }
 
     function draw(now) {
       const rect = heroCanvas.getBoundingClientRect();
       const dt = Math.min(0.05, (now - (lastFrame || now)) / 1000);
+      const step = dt * 60;
       lastFrame = now;
       ctx.clearRect(0, 0, rect.width, rect.height);
       ctx.fillStyle = "#090a0e";
       ctx.fillRect(0, 0, rect.width, rect.height);
 
-      floatingWords.forEach((word) => {
-        ctx.font = `${word.weight} ${word.size}px CircularBook, Helvetica, Arial, sans-serif`;
-        word.width = ctx.measureText(word.text).width;
-
-        word.x += word.vx * dt;
-        if (word.vx > 0 && word.x - 20 > rect.width) {
-          word.x = -word.width - 30;
+      lines.forEach((line) => {
+        line.x += line.vx * dt;
+        if (line.vx > 0 && line.x > rect.width + 80) {
+          line.x = -line.width - 80;
+        } else if (line.vx < 0 && line.x + line.width < -80) {
+          line.x = rect.width + 80;
         }
-        if (word.vx < 0 && word.x + word.width + 20 < 0) {
-          word.x = rect.width + 30;
-        }
+      });
 
-        const y = word.baseY + Math.sin(now * 0.001 * word.freq + word.phase) * word.amp;
-        let drawX = word.x;
-        let drawY = y;
-        const centerX = drawX + word.width * 0.5;
-        const centerY = drawY;
-        const dx = centerX - mouse.x;
-        const dy = centerY - mouse.y;
+      glyphs.forEach((glyph) => {
+        const line = glyph.line;
+        const anchorX = line.x + glyph.offsetX;
+        const anchorY =
+          line.baseY +
+          Math.sin(now * 0.001 * line.freq + line.phase) * line.amp +
+          Math.sin(now * 0.002 + glyph.driftPhase) * 2.2;
+
+        const dx = glyph.x - mouse.x;
+        const dy = glyph.y - mouse.y;
         const distSq = dx * dx + dy * dy;
-        if (distSq < 160 * 160) {
-          const force = (160 * 160 - distSq) / (160 * 160);
-          drawX += (dx / 160) * force * 22;
-          drawY += (dy / 160) * force * 10;
+        const repelRadius = 165;
+        if (distSq < repelRadius * repelRadius) {
+          const dist = Math.sqrt(distSq) || 1;
+          const force = Math.pow(1 - dist / repelRadius, 2);
+          glyph.vx += (dx / dist) * 24 * force * step;
+          glyph.vy += (dy / dist) * 16 * force * step;
         }
 
-        ctx.globalAlpha = word.alpha;
-        ctx.fillStyle = word.color;
+        glyph.vx += (anchorX - glyph.x) * 0.12 * step;
+        glyph.vy += (anchorY - glyph.y) * 0.12 * step;
+        glyph.vx *= 0.84;
+        glyph.vy *= 0.84;
+        glyph.x += glyph.vx * step;
+        glyph.y += glyph.vy * step;
+
+        ctx.globalAlpha = line.alpha;
+        ctx.fillStyle = line.color;
         ctx.textBaseline = "middle";
-        ctx.fillText(word.text, drawX, drawY);
+        ctx.font = `${line.weight} ${line.size}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
+        ctx.fillText(glyph.char, glyph.x, glyph.y);
       });
 
       ctx.globalAlpha = 1;
