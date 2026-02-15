@@ -1239,6 +1239,12 @@ body.modal-open {
   justify-content: center;
 }
 
+.tile-bin-map {
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+}
+
 .bin-map-placeholder p {
   margin: 0;
 }
@@ -1251,8 +1257,11 @@ body.modal-open {
 
 .tile-bin-map .bin-map-image {
   width: 100%;
-  height: auto;
+  height: 100%;
+  flex: 1 1 auto;
+  min-height: 220px;
   margin-top: 12px;
+  object-fit: contain;
   border-radius: 12px;
   border: 1px solid #b8b8c1;
   background: #f3f3f5;
