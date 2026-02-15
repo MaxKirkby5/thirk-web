@@ -242,6 +242,212 @@
   if (typingLine) revealObserver.observe(typingLine);
   if (monogramCard) revealObserver.observe(monogramCard);
 
+  const asciiWomanCanvas = document.querySelector("#ascii-woman-canvas");
+  if (asciiWomanCanvas instanceof HTMLCanvasElement) {
+    const ctx = asciiWomanCanvas.getContext("2d");
+    if (ctx) {
+      const charset = "160/90";
+      const stages = ["READ", "CAP", "WRITE", "CRICKET"];
+      const stagePositions = [9, 24, 40, 55];
+      const cols = 68;
+      const rows = 22;
+      const tile = asciiWomanCanvas.closest(".interactive-tile");
+      const state = {
+        progress: 0,
+        hover: false,
+        cellW: 10,
+        cellH: 10,
+      };
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      function put(map, x, y, kind) {
+        if (x < 0 || x >= cols || y < 0 || y >= rows) {
+          return;
+        }
+        const key = `${x},${y}`;
+        if (kind === "o") {
+          map.set(key, kind);
+          return;
+        }
+        if (!map.has(key)) {
+          map.set(key, kind);
+        }
+      }
+
+      function drawWoman(map, cx, baseY, action) {
+        const head = [
+          [-1, -12], [0, -12], [1, -12],
+          [-2, -11], [-1, -11], [0, -11], [1, -11], [2, -11],
+          [-2, -10], [-1, -10], [0, -10], [1, -10], [2, -10],
+          [-1, -9], [0, -9], [1, -9],
+        ];
+        head.forEach(([dx, dy]) => put(map, cx + dx, baseY + dy, "w"));
+        // Hair silhouette.
+        [[-3, -12], [-3, -11], [-3, -10], [-2, -13], [-1, -13], [0, -13], [1, -13]].forEach(([dx, dy]) =>
+          put(map, cx + dx, baseY + dy, "w")
+        );
+
+        for (let y = -8; y <= -3; y += 1) {
+          put(map, cx, baseY + y, "w");
+        }
+        [[-1, -2], [0, -2], [1, -2]].forEach(([dx, dy]) => put(map, cx + dx, baseY + dy, "w"));
+
+        for (let y = -1; y <= 3; y += 1) {
+          put(map, cx - 1, baseY + y, "w");
+          put(map, cx + 1, baseY + y, "w");
+        }
+        [[-2, 3], [2, 3]].forEach(([dx, dy]) => put(map, cx + dx, baseY + dy, "w"));
+
+        if (action === 0) {
+          [[1, -6], [2, -6], [3, -6], [4, -6], [1, -5], [2, -5], [3, -5], [4, -5], [5, -5]].forEach(([dx, dy]) =>
+            put(map, cx + dx, baseY + dy, "w")
+          );
+        } else if (action === 1) {
+          [[-1, -7], [-2, -8], [-3, -9], [1, -7], [2, -8], [3, -9], [-4, -9], [4, -9]].forEach(([dx, dy]) =>
+            put(map, cx + dx, baseY + dy, "w")
+          );
+        } else if (action === 2) {
+          [[1, -6], [2, -6], [3, -6], [4, -6], [5, -6], [6, -6], [1, -5], [2, -5], [3, -5]].forEach(([dx, dy]) =>
+            put(map, cx + dx, baseY + dy, "w")
+          );
+          [[-1, -6], [-2, -5], [-3, -4]].forEach(([dx, dy]) => put(map, cx + dx, baseY + dy, "w"));
+        } else {
+          [[1, -7], [2, -8], [3, -9], [4, -10], [4, -9], [2, -7], [3, -8]].forEach(([dx, dy]) =>
+            put(map, cx + dx, baseY + dy, "w")
+          );
+        }
+      }
+
+      function drawBooks(map, cx, baseY) {
+        const x = cx + 8;
+        const y = baseY - 7;
+        for (let i = 0; i < 6; i += 1) {
+          put(map, x + i, y, "o");
+          put(map, x + i, y + 2, "o");
+          put(map, x + i, y + 4, "o");
+        }
+        [[x, y + 1], [x + 5, y + 1], [x, y + 3], [x + 5, y + 3], [x, y + 5], [x + 5, y + 5]].forEach(([px, py]) =>
+          put(map, px, py, "o")
+        );
+      }
+
+      function drawCap(map, cx, baseY) {
+        const y = baseY - 16;
+        for (let i = -4; i <= 4; i += 1) {
+          put(map, cx + i, y, "o");
+        }
+        put(map, cx - 2, y + 1, "o");
+        put(map, cx - 1, y + 1, "o");
+        put(map, cx, y + 1, "o");
+        put(map, cx + 1, y + 1, "o");
+        put(map, cx + 2, y + 1, "o");
+        put(map, cx + 4, y + 2, "o");
+        put(map, cx + 5, y + 3, "o");
+      }
+
+      function drawWritingDesk(map, cx, baseY) {
+        const x = cx + 8;
+        const y = baseY - 4;
+        for (let i = 0; i < 11; i += 1) {
+          put(map, x + i, y, "o");
+        }
+        for (let j = 1; j <= 4; j += 1) {
+          put(map, x + 1, y + j, "o");
+          put(map, x + 9, y + j, "o");
+        }
+        [[x + 4, y - 1], [x + 5, y - 1], [x + 6, y - 1], [x + 7, y - 1], [x + 8, y - 2], [x + 9, y - 3]].forEach(([px, py]) =>
+          put(map, px, py, "o")
+        );
+      }
+
+      function drawCricket(map, cx, baseY) {
+        const x = cx + 8;
+        const y = baseY - 10;
+        [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [5, 6], [5, 7], [4, 7], [3, 7], [2, 7]].forEach(([dx, dy]) =>
+          put(map, x + dx, y + dy, "o")
+        );
+        [[8, 2], [9, 2], [8, 3], [9, 3]].forEach(([dx, dy]) => put(map, x + dx, y + dy, "o"));
+      }
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function resizeAsciiCanvas() {
+        const rect = asciiWomanCanvas.getBoundingClientRect();
+        asciiWomanCanvas.width = Math.floor(rect.width * dpr);
+        asciiWomanCanvas.height = Math.floor(rect.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        state.cellW = rect.width / cols;
+        state.cellH = rect.height / rows;
+      }
+
+      function drawAsciiFrame(timeSeconds) {
+        const rect = asciiWomanCanvas.getBoundingClientRect();
+        ctx.clearRect(0, 0, rect.width, rect.height);
+        ctx.fillStyle = "#0d0e13";
+        ctx.fillRect(0, 0, rect.width, rect.height);
+
+        const scene = new Map();
+        const stage = Math.min(3, Math.floor(state.progress));
+        const localProgress = state.progress - stage;
+        let x = stagePositions[stage];
+
+        if (stage < 3) {
+          const t = Math.min(localProgress / 0.86, 1);
+          x = stagePositions[stage] + (stagePositions[stage + 1] - stagePositions[stage]) * easeOutCubic(t);
+        }
+
+        const baseY = 15;
+        drawWoman(scene, Math.round(x), baseY, stage);
+        if (stage === 0) drawBooks(scene, Math.round(x), baseY);
+        if (stage === 1) drawCap(scene, Math.round(x), baseY);
+        if (stage === 2) drawWritingDesk(scene, Math.round(x), baseY);
+        if (stage === 3) drawCricket(scene, Math.round(x), baseY);
+
+        ctx.textBaseline = "top";
+        ctx.textAlign = "left";
+        ctx.font = `${Math.max(8, state.cellH * 0.9)}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
+
+        scene.forEach((kind, key) => {
+          const [gx, gy] = key.split(",").map(Number);
+          const character = charset[(gx * 3 + gy + Math.floor(timeSeconds * 10)) % charset.length];
+          ctx.fillStyle = kind === "o" ? "#1400DC" : "#FFFFFF";
+          ctx.fillText(character, gx * state.cellW, gy * state.cellH);
+        });
+
+        ctx.font = `${Math.max(9, state.cellH * 0.78)}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
+        stages.forEach((label, idx) => {
+          ctx.fillStyle = idx === stage ? "#8f84ff" : "#60616a";
+          ctx.fillText(label, stagePositions[idx] * state.cellW - 2, (rows - 2) * state.cellH);
+        });
+      }
+
+      function animateAsciiWoman(now) {
+        const dt = Math.min(0.05, (now - (animateAsciiWoman.last || now)) / 1000);
+        animateAsciiWoman.last = now;
+        const speed = state.hover ? 0.95 : 0.38;
+        state.progress += dt * speed;
+        if (state.progress > 4.2) {
+          state.progress = 0;
+        }
+        drawAsciiFrame(now / 1000);
+        window.requestAnimationFrame(animateAsciiWoman);
+      }
+
+      tile?.addEventListener("mouseenter", () => {
+        state.hover = true;
+      });
+      tile?.addEventListener("mouseleave", () => {
+        state.hover = false;
+      });
+
+      resizeAsciiCanvas();
+      window.addEventListener("resize", resizeAsciiCanvas);
+      window.requestAnimationFrame(animateAsciiWoman);
+    }
+  }
+
   const heroCanvas = document.querySelector("#ascii-hero-canvas");
   if (heroCanvas instanceof HTMLCanvasElement) {
     const ctx = heroCanvas.getContext("2d");

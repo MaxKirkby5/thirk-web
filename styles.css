@@ -959,6 +959,16 @@ body.modal-open {
   transform: translateY(0);
 }
 
+.ascii-woman-canvas {
+  width: 100%;
+  height: 220px;
+  display: block;
+  margin-top: 14px;
+  border: 1px solid #2f3038;
+  border-radius: 12px;
+  background: #0d0e13;
+}
+
 .tile-counter {
   display: flex;
   flex-direction: column;
