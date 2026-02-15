@@ -449,164 +449,80 @@
     }
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const phraseConfigs = [
-      // ~25% smaller than previous non-name phrase sizing.
-      { text: "Jameson / St. Patrick’s Eve", color: "#1C4620", alpha: 0.78, size: 12, weight: 500, family: "CircularMedium" },
-      { text: "University of South Carolina", color: "#691111", alpha: 0.74, size: 12, weight: 500, family: "CircularMedium" },
-      { text: "Philidelphia Eagles", color: "#1E4B53", alpha: 0.72, size: 11, weight: 500, family: "CircularMedium" },
-      { text: "Rocket Mortgage", color: "#851E26", alpha: 0.72, size: 11, weight: 500, family: "CircularMedium" },
-      { text: "Marriott Bonvoy x Visa", color: "#5923B5", alpha: 0.72, size: 11, weight: 500, family: "CircularMedium" },
-      { text: "Annys Thirkell-Jones", color: "#EA3365", alpha: 0.95, size: 19, weight: 600, family: "CircularBold" },
-      { text: "Annys Thirkell-Jones", color: "#EA3365", alpha: 0.8, size: 18, weight: 600, family: "CircularBold" },
-    ];
-    const lines = [];
-    let lastFrame = 0;
-
-    function buildGlyphMetrics(config, maxPhraseWidth) {
-      const minSize = 8;
-      let size = config.size;
-      let chars = [];
-      let charWidths = [];
-      let offsets = [];
-      let width = 0;
-      let fontSpec = "";
-
-      for (let attempt = 0; attempt < 3; attempt += 1) {
-        fontSpec = `${config.weight} ${size}px ${config.family}, CircularBook, Helvetica, Arial, sans-serif`;
-        ctx.font = fontSpec;
-        chars = [...config.text];
-        charWidths = chars.map((ch) => Math.max(3, ctx.measureText(ch).width * 0.95));
-        offsets = [];
-        let runningOffset = 0;
-        charWidths.forEach((w) => {
-          offsets.push(runningOffset);
-          runningOffset += w;
-        });
-        width = charWidths.reduce((sum, w) => sum + w, 0);
-        if (width <= maxPhraseWidth || size <= minSize) {
-          break;
-        }
-        const scaledSize = Math.floor(size * (maxPhraseWidth / Math.max(1, width)));
-        size = Math.max(minSize, scaledSize);
-      }
-
-      return { chars, offsets, width, fontSpec };
-    }
-
-    function createStructuredGlyphs(rect) {
-      lines.length = 0;
-      const laneCount = 7;
-      const laneHeight = rect.height / (laneCount + 1);
-      const bounds = {
-        left: 20,
-        right: rect.width - 20,
-        top: 30,
-        bottom: rect.height - 22,
-      };
-      const maxPhraseWidth = Math.max(10, bounds.right - bounds.left - 6);
-
-      phraseConfigs.forEach((config, i) => {
-        const { chars, offsets, width, fontSpec } = buildGlyphMetrics(config, maxPhraseWidth);
-        const lane = (i % laneCount) + 1;
-        const usableWidth = Math.max(1, bounds.right - bounds.left - width);
-        const startX = bounds.left + ((i * 113) % usableWidth);
-        const startY = laneHeight * lane + (i % 2 === 0 ? -6 : 8);
-        const launchAngle = Math.random() * Math.PI * 2;
-        const launchSpeed = 14 + i * 1.6;
-        const vx = Math.cos(launchAngle) * launchSpeed;
-        const vy = Math.sin(launchAngle) * (10 + (i % 3) * 1.5);
-
-        const line = {
-          ...config,
-          width,
-          chars,
-          offsets,
-          x: startX,
-          y: startY,
-          vx,
-          vy,
-          bounds,
-          fontSpec,
-        };
-        lines.push(line);
-      });
-    }
+    const graySource = "160/90";
+    const pinkSource = "ATJ";
+    const particles = [];
+    const mouse = { x: -9999, y: -9999 };
 
     function resizeCanvas() {
       const rect = heroCanvas.getBoundingClientRect();
       heroCanvas.width = Math.floor(rect.width * dpr);
       heroCanvas.height = Math.floor(rect.height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      createStructuredGlyphs(rect);
+
+      const count = Math.min(220, Math.max(90, Math.floor((rect.width * rect.height) / 9500)));
+      particles.length = 0;
+      for (let i = 0; i < count; i += 1) {
+        const isPink = Math.random() < 0.28;
+        const source = isPink ? pinkSource : graySource;
+        particles.push({
+          x: Math.random() * rect.width,
+          y: Math.random() * rect.height,
+          vx: (Math.random() - 0.5) * 0.28,
+          vy: (Math.random() - 0.5) * 0.28,
+          ch: source[Math.floor(Math.random() * source.length)] || ".",
+          size: 10 + Math.random() * 4,
+          alpha: 0.18 + Math.random() * 0.35,
+          color: isPink ? "#EA3365" : "#90919b",
+        });
+      }
     }
 
-    function draw(now) {
+    function draw() {
       const rect = heroCanvas.getBoundingClientRect();
-      const dt = Math.min(0.05, (now - (lastFrame || now)) / 1000);
-      lastFrame = now;
       ctx.clearRect(0, 0, rect.width, rect.height);
       ctx.fillStyle = "#090a0e";
       ctx.fillRect(0, 0, rect.width, rect.height);
+      ctx.font = "12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+      ctx.textBaseline = "middle";
 
-      lines.forEach((line) => {
-        // Brownian-like drift: persistent random motion without freezing.
-        const noiseScale = Math.sqrt(Math.max(dt, 0.001));
-        line.vx += (Math.random() * 2 - 1) * 40 * noiseScale;
-        line.vy += (Math.random() * 2 - 1) * 30 * noiseScale;
-        line.vx = Math.max(-42, Math.min(42, line.vx)) * 0.988;
-        line.vy = Math.max(-30, Math.min(30, line.vy)) * 0.988;
-        const speed = Math.hypot(line.vx, line.vy);
-        if (speed < 6) {
-          const angle = Math.random() * Math.PI * 2;
-          line.vx += Math.cos(angle) * 6;
-          line.vy += Math.sin(angle) * 4;
-        }
-        line.x += line.vx * dt;
-        line.y += line.vy * dt;
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < -8 || p.x > rect.width + 8) p.vx *= -1;
+        if (p.y < -8 || p.y > rect.height + 8) p.vy *= -1;
 
-        if (line.x < line.bounds.left) {
-          line.x = line.bounds.left;
-          line.vx = Math.abs(line.vx);
+        const dx = p.x - mouse.x;
+        const dy = p.y - mouse.y;
+        const distSq = dx * dx + dy * dy;
+        if (distSq < 120 * 120) {
+          const force = (120 * 120 - distSq) / (120 * 120);
+          p.x += (dx / 120) * force * 1.6;
+          p.y += (dy / 120) * force * 1.6;
         }
-        if (line.x + line.width > line.bounds.right) {
-          line.x = line.bounds.right - line.width;
-          line.vx = -Math.abs(line.vx);
-        }
-        if (line.y < line.bounds.top) {
-          line.y = line.bounds.top;
-          line.vy = Math.abs(line.vy);
-        }
-        if (line.y > line.bounds.bottom) {
-          line.y = line.bounds.bottom;
-          line.vy = -Math.abs(line.vy);
-        }
-      });
 
-      lines.forEach((line) => {
-        ctx.globalAlpha = line.alpha;
-        ctx.fillStyle = line.color;
-        ctx.textBaseline = "middle";
-        ctx.font = line.fontSpec;
-        line.chars.forEach((char, idx) => {
-          const x = line.x + line.offsets[idx];
-          const y = line.y;
-          ctx.fillText(char, x, y);
-        });
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.font = `${p.size}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
+        ctx.fillText(p.ch, p.x, p.y);
       });
 
       ctx.globalAlpha = 1;
       window.requestAnimationFrame(draw);
     }
 
+    heroCanvas.addEventListener("mousemove", (event) => {
+      const rect = heroCanvas.getBoundingClientRect();
+      mouse.x = event.clientX - rect.left;
+      mouse.y = event.clientY - rect.top;
+    });
+    heroCanvas.addEventListener("mouseleave", () => {
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+
     resizeCanvas();
-    window.requestAnimationFrame(draw);
+    draw();
     window.addEventListener("resize", resizeCanvas);
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        // Rebuild glyph metrics with loaded Circular fonts for precise rendering.
-        const rect = heroCanvas.getBoundingClientRect();
-        createStructuredGlyphs(rect);
-      });
-    }
   }
 })();
