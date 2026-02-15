@@ -462,6 +462,37 @@
     const lines = [];
     let lastFrame = 0;
 
+    function buildGlyphMetrics(config, maxPhraseWidth) {
+      const minSize = 8;
+      let size = config.size;
+      let chars = [];
+      let charWidths = [];
+      let offsets = [];
+      let width = 0;
+      let fontSpec = "";
+
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        fontSpec = `${config.weight} ${size}px ${config.family}, CircularBook, Helvetica, Arial, sans-serif`;
+        ctx.font = fontSpec;
+        chars = [...config.text];
+        charWidths = chars.map((ch) => Math.max(3, ctx.measureText(ch).width * 0.95));
+        offsets = [];
+        let runningOffset = 0;
+        charWidths.forEach((w) => {
+          offsets.push(runningOffset);
+          runningOffset += w;
+        });
+        width = charWidths.reduce((sum, w) => sum + w, 0);
+        if (width <= maxPhraseWidth || size <= minSize) {
+          break;
+        }
+        const scaledSize = Math.floor(size * (maxPhraseWidth / Math.max(1, width)));
+        size = Math.max(minSize, scaledSize);
+      }
+
+      return { chars, offsets, width, fontSpec };
+    }
+
     function createStructuredGlyphs(rect) {
       lines.length = 0;
       const laneCount = 7;
@@ -472,25 +503,18 @@
         top: 30,
         bottom: rect.height - 22,
       };
+      const maxPhraseWidth = Math.max(10, bounds.right - bounds.left - 6);
 
       phraseConfigs.forEach((config, i) => {
-        const fontSpec = `${config.weight} ${config.size}px ${config.family}, CircularBook, Helvetica, Arial, sans-serif`;
-        ctx.font = fontSpec;
-        const chars = [...config.text];
-        const charWidths = chars.map((ch) => Math.max(3, ctx.measureText(ch).width * 0.95));
-        const offsets = [];
-        let runningOffset = 0;
-        charWidths.forEach((w) => {
-          offsets.push(runningOffset);
-          runningOffset += w;
-        });
-        const width = charWidths.reduce((sum, w) => sum + w, 0);
+        const { chars, offsets, width, fontSpec } = buildGlyphMetrics(config, maxPhraseWidth);
         const lane = (i % laneCount) + 1;
         const usableWidth = Math.max(1, bounds.right - bounds.left - width);
         const startX = bounds.left + ((i * 113) % usableWidth);
         const startY = laneHeight * lane + (i % 2 === 0 ? -6 : 8);
-        const vx = (Math.random() * 2 - 1) * (12 + i * 1.2);
-        const vy = (Math.random() * 2 - 1) * (8 + (i % 3) * 1.4);
+        const launchAngle = Math.random() * Math.PI * 2;
+        const launchSpeed = 14 + i * 1.6;
+        const vx = Math.cos(launchAngle) * launchSpeed;
+        const vy = Math.sin(launchAngle) * (10 + (i % 3) * 1.5);
 
         const line = {
           ...config,
@@ -519,18 +543,24 @@
     function draw(now) {
       const rect = heroCanvas.getBoundingClientRect();
       const dt = Math.min(0.05, (now - (lastFrame || now)) / 1000);
-      const step = dt * 60;
       lastFrame = now;
       ctx.clearRect(0, 0, rect.width, rect.height);
       ctx.fillStyle = "#090a0e";
       ctx.fillRect(0, 0, rect.width, rect.height);
 
       lines.forEach((line) => {
-        // Diffusion motion: slight random walk with bounded bounce.
-        line.vx += (Math.random() * 2 - 1) * 10 * dt;
-        line.vy += (Math.random() * 2 - 1) * 8 * dt;
-        line.vx = Math.max(-26, Math.min(26, line.vx)) * 0.992;
-        line.vy = Math.max(-18, Math.min(18, line.vy)) * 0.992;
+        // Brownian-like drift: persistent random motion without freezing.
+        const noiseScale = Math.sqrt(Math.max(dt, 0.001));
+        line.vx += (Math.random() * 2 - 1) * 40 * noiseScale;
+        line.vy += (Math.random() * 2 - 1) * 30 * noiseScale;
+        line.vx = Math.max(-42, Math.min(42, line.vx)) * 0.988;
+        line.vy = Math.max(-30, Math.min(30, line.vy)) * 0.988;
+        const speed = Math.hypot(line.vx, line.vy);
+        if (speed < 6) {
+          const angle = Math.random() * Math.PI * 2;
+          line.vx += Math.cos(angle) * 6;
+          line.vy += Math.sin(angle) * 4;
+        }
         line.x += line.vx * dt;
         line.y += line.vy * dt;
 
