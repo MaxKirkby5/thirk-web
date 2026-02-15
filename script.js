@@ -63,10 +63,6 @@
   const typingLine = document.querySelector("#typing-line");
   const polishLine = document.querySelector("#polish-line");
   const polishButton = document.querySelector("#polish-button");
-  const timelineNodes = document.querySelectorAll(".timeline-node");
-  const timelineYear = document.querySelector("#timeline-year");
-  const timelineTitle = document.querySelector("#timeline-title");
-  const timelineBody = document.querySelector("#timeline-body");
   const slider = document.querySelector(".before-after__input");
   const beforeAfter = document.querySelector("#before-after");
   const channelMixer = document.querySelector("#channel-mixer");
@@ -89,20 +85,6 @@
     "Clarity, tone, evidence, then momentum.",
   ];
   let polishIdx = 0;
-
-  function activateTimelineNode(node) {
-    timelineNodes.forEach((n) => n.classList.remove("is-active"));
-    node.classList.add("is-active");
-    if (timelineYear) timelineYear.textContent = node.dataset.year || "";
-    if (timelineTitle) timelineTitle.textContent = node.dataset.title || "";
-    if (timelineBody) timelineBody.textContent = node.dataset.body || "";
-  }
-
-  timelineNodes.forEach((node) => {
-    ["mouseenter", "focus", "click"].forEach((eventName) => {
-      node.addEventListener(eventName, () => activateTimelineNode(node));
-    });
-  });
 
   if (slider && beforeAfter) {
     slider.addEventListener("input", () => {
