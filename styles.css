@@ -1103,9 +1103,9 @@ body.modal-open {
 }
 
 .energy-map .energy-region {
-  fill: #1400dc;
+  fill: #EA3365;
   fill-opacity: 0.85;
-  stroke: #c4bcff;
+  stroke: #f5a0b8;
   stroke-width: 1.3;
   transition: fill-opacity 0.2s ease;
 }
@@ -1115,7 +1115,7 @@ body.modal-open {
 }
 
 .energy-region-label {
-  fill: #ece9ff;
+  fill: #fce4ec;
   font-size: 14px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1124,37 +1124,70 @@ body.modal-open {
 
 .tile-cricket {
   min-height: 360px;
+  display: flex;
+  flex-direction: column;
 }
 
-.cricket-arc {
-  width: 100%;
-  height: auto;
+.cricket-scorecard {
+  margin-top: 10px;
+  border: 1px solid #30313a;
+  border-radius: 12px;
+  background: #101117;
+  overflow: hidden;
 }
 
-.cricket-arc path {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.35);
-  stroke-width: 2;
-  stroke-dasharray: 4 5;
+.cricket-scorecard__head,
+.cricket-scorecard__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 56px 56px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 14px;
 }
 
-.cricket-arc circle {
-  fill: #ffffff;
-  transform-origin: center;
-  animation: none;
+.cricket-scorecard__head {
+  background: rgba(20, 0, 220, 0.2);
+  border-bottom: 1px solid #30313a;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #aeb1c2;
 }
 
-.tile-cricket:hover .cricket-arc circle {
-  animation: ball-travel 1000ms ease-in-out forwards;
+.cricket-scorecard__row {
+  border-bottom: 1px solid #25262f;
+  font-size: 14px;
+  color: #f1f3ff;
 }
 
-@keyframes ball-travel {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(308px, -62px);
-  }
+.cricket-scorecard__head span:nth-child(n + 2),
+.cricket-scorecard__row span:nth-child(n + 2) {
+  text-align: right;
+}
+
+.cricket-scorecard__row span:first-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cricket-scorecard__more {
+  margin: 0;
+  padding: 8px 14px 10px;
+  color: #8e91a0;
+  letter-spacing: 0.08em;
+}
+
+.tile-cricket-link {
+  color: #cbc5ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 180ms ease;
+}
+
+.tile-cricket-link:hover,
+.tile-cricket-link:focus-visible {
+  color: #ffffff;
 }
 
 .tile-slider {
