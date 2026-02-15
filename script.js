@@ -247,7 +247,7 @@
     const ctx = asciiWomanCanvas.getContext("2d");
     if (ctx) {
       const charset = "160/90";
-      const stages = ["READ", "CAP", "WRITE", "CRICKET"];
+      const stages = ["PUBLISH", "OXFORD", "RESEARCH", "CRICKET"];
       const stagePositions = [9, 24, 40, 55];
       const cols = 68;
       const rows = 22;
@@ -260,18 +260,28 @@
       };
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-      function put(map, x, y, kind) {
+      function put(map, x, y, kind, ch = "") {
         if (x < 0 || x >= cols || y < 0 || y >= rows) {
           return;
         }
         const key = `${x},${y}`;
         if (kind === "o") {
-          map.set(key, kind);
+          map.set(key, { kind, ch });
           return;
         }
         if (!map.has(key)) {
-          map.set(key, kind);
+          map.set(key, { kind, ch });
         }
+      }
+
+      function drawPattern(map, startX, startY, pattern) {
+        pattern.forEach((line, row) => {
+          [...line].forEach((ch, col) => {
+            if (ch !== " " && ch !== "⠀") {
+              put(map, startX + col, startY + row, "o", ch);
+            }
+          });
+        });
       }
 
       function drawWoman(map, cx, baseY, action) {
@@ -319,54 +329,66 @@
       }
 
       function drawBooks(map, cx, baseY) {
-        const x = cx + 8;
-        const y = baseY - 7;
-        for (let i = 0; i < 6; i += 1) {
-          put(map, x + i, y, "o");
-          put(map, x + i, y + 2, "o");
-          put(map, x + i, y + 4, "o");
-        }
-        [[x, y + 1], [x + 5, y + 1], [x, y + 3], [x + 5, y + 3], [x, y + 5], [x + 5, y + 5]].forEach(([px, py]) =>
-          put(map, px, py, "o")
-        );
+        const pattern = [
+          " _______ ",
+          "/      /,",
+          "/      //",
+          "/______//",
+          "(______(/",
+        ];
+        drawPattern(map, cx + 7, baseY - 7, pattern);
       }
 
       function drawCap(map, cx, baseY) {
-        const y = baseY - 16;
-        for (let i = -4; i <= 4; i += 1) {
-          put(map, cx + i, y, "o");
-        }
-        put(map, cx - 2, y + 1, "o");
-        put(map, cx - 1, y + 1, "o");
-        put(map, cx, y + 1, "o");
-        put(map, cx + 1, y + 1, "o");
-        put(map, cx + 2, y + 1, "o");
-        put(map, cx + 4, y + 2, "o");
-        put(map, cx + 5, y + 3, "o");
+        const pattern = [
+          "    ▄▄▄▄▄▄▄    ",
+          " ▄███████████▄ ",
+          "███████████████",
+          " ▀███████████▀ ",
+          "    ▀█████▀    ",
+          "      ▐█▌      ",
+        ];
+        drawPattern(map, cx + 4, baseY - 16, pattern);
       }
 
-      function drawWritingDesk(map, cx, baseY) {
-        const x = cx + 8;
-        const y = baseY - 4;
-        for (let i = 0; i < 11; i += 1) {
-          put(map, x + i, y, "o");
-        }
-        for (let j = 1; j <= 4; j += 1) {
-          put(map, x + 1, y + j, "o");
-          put(map, x + 9, y + j, "o");
-        }
-        [[x + 4, y - 1], [x + 5, y - 1], [x + 6, y - 1], [x + 7, y - 1], [x + 8, y - 2], [x + 9, y - 3]].forEach(([px, py]) =>
-          put(map, px, py, "o")
-        );
+      function drawPen(map, cx, baseY) {
+        const pattern = [
+          "   .\".   ",
+          "  /   \\  ",
+          "  |  ||  ",
+          "  |  ||  ",
+          "  |  |/  ",
+          "  |__|   ",
+          "  |==|   ",
+          "  |  |   ",
+          "  |  |   ",
+          "  \\__/   ",
+          "   `     ",
+        ];
+        drawPattern(map, cx + 8, baseY - 11, pattern);
       }
 
       function drawCricket(map, cx, baseY) {
-        const x = cx + 8;
-        const y = baseY - 10;
-        [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [5, 6], [5, 7], [4, 7], [3, 7], [2, 7]].forEach(([dx, dy]) =>
-          put(map, x + dx, y + dy, "o")
-        );
-        [[8, 2], [9, 2], [8, 3], [9, 3]].forEach(([dx, dy]) => put(map, x + dx, y + dy, "o"));
+        const pattern = [
+          "__.|█|",
+          "__.|█|",
+          "__.|█|",
+          "__.|█|",
+          "__.|█|",
+          "_▄.|█|▄",
+          "_█████",
+          "_█████",
+          "_█████",
+          "_█████",
+          "_█████",
+          "_█████",
+          "_█████",
+          "_█████_",
+          "_█████_",
+          "_▀███▀_",
+        ];
+        drawPattern(map, cx + 8, baseY - 15, pattern);
+        put(map, cx + 20, baseY - 9, "o", "o");
       }
 
       function easeOutCubic(t) {
@@ -398,21 +420,24 @@
           x = stagePositions[stage] + (stagePositions[stage + 1] - stagePositions[stage]) * easeOutCubic(t);
         }
 
-        const baseY = 15;
+        const baseY = 16;
         drawWoman(scene, Math.round(x), baseY, stage);
         if (stage === 0) drawBooks(scene, Math.round(x), baseY);
         if (stage === 1) drawCap(scene, Math.round(x), baseY);
-        if (stage === 2) drawWritingDesk(scene, Math.round(x), baseY);
+        if (stage === 2) drawPen(scene, Math.round(x), baseY);
         if (stage === 3) drawCricket(scene, Math.round(x), baseY);
 
         ctx.textBaseline = "top";
         ctx.textAlign = "left";
         ctx.font = `${Math.max(8, state.cellH * 0.9)}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
 
-        scene.forEach((kind, key) => {
+        scene.forEach((value, key) => {
           const [gx, gy] = key.split(",").map(Number);
-          const character = charset[(gx * 3 + gy + Math.floor(timeSeconds * 10)) % charset.length];
-          ctx.fillStyle = kind === "o" ? "#1400DC" : "#FFFFFF";
+          const character =
+            value.kind === "o"
+              ? value.ch
+              : charset[(gx * 3 + gy + Math.floor(timeSeconds * 10)) % charset.length];
+          ctx.fillStyle = value.kind === "o" ? "#1400DC" : "#FFFFFF";
           ctx.fillText(character, gx * state.cellW, gy * state.cellH);
         });
 
