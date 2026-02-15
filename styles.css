@@ -818,6 +818,7 @@ body.modal-open {
 
 .work-gallery__intro .work-gallery__intro-content p,
 .work-gallery__intro .work-gallery__intro-title {
+  margin-top: 0;
   margin-bottom: 20px;
 }
 
@@ -1375,9 +1376,13 @@ body.modal-open {
 }
 
 .tile-research {
-  min-height: 360px;
+  min-height: 250px;
   display: flex;
   flex-direction: column;
+}
+
+.work-gallery__row--tile-06 {
+  max-width: 620px;
 }
 
 .research-icon-wrap {
@@ -1385,17 +1390,18 @@ body.modal-open {
   border: 1px solid #30313a;
   border-radius: 12px;
   background: #09090d;
-  min-height: 220px;
+  min-height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: 14px;
 }
 
 .research-icon {
-  width: min(240px, 100%);
+  width: min(140px, 100%);
   aspect-ratio: 1 / 1;
   object-fit: contain;
+  filter: invert(1) brightness(1.2);
 }
 
 .tile-sponsor .sponsor-funnel {
