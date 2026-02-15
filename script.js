@@ -478,12 +478,10 @@
       { text: "Annys Thirkell-Jones", color: "#EA3365", alpha: 0.8, size: 18, weight: 600, family: "CircularBold" },
     ];
     const lines = [];
-    const glyphs = [];
     let lastFrame = 0;
 
     function createStructuredGlyphs(rect) {
       lines.length = 0;
-      glyphs.length = 0;
       const laneCount = 7;
       const laneHeight = rect.height / (laneCount + 1);
       const bounds = {
@@ -498,6 +496,12 @@
         ctx.font = fontSpec;
         const chars = [...config.text];
         const charWidths = chars.map((ch) => Math.max(3, ctx.measureText(ch).width * 0.95));
+        const offsets = [];
+        let runningOffset = 0;
+        charWidths.forEach((w) => {
+          offsets.push(runningOffset);
+          runningOffset += w;
+        });
         const width = charWidths.reduce((sum, w) => sum + w, 0);
         const lane = (i % laneCount) + 1;
         const usableWidth = Math.max(1, bounds.right - bounds.left - width);
@@ -509,32 +513,16 @@
         const line = {
           ...config,
           width,
+          chars,
+          offsets,
           x: startX,
           y: startY,
           vx,
           vy,
-          amp: 10 + (i % 3) * 4,
-          freq: 0.58 + (i % 4) * 0.14,
-          phase: i * 0.8,
           bounds,
+          fontSpec,
         };
         lines.push(line);
-
-        let offsetCursor = 0;
-        chars.forEach((char, charIndex) => {
-          const offsetX = offsetCursor;
-          offsetCursor += charWidths[charIndex];
-          glyphs.push({
-            line,
-            char,
-            offsetX,
-            driftPhase: charIndex * 0.26 + i * 0.5,
-            x: line.x + offsetX,
-            y: line.y,
-            vx: 0,
-            vy: 0,
-          });
-        });
       });
     }
 
@@ -582,23 +570,16 @@
         }
       });
 
-      glyphs.forEach((glyph) => {
-        const line = glyph.line;
-        const anchorX = line.x + glyph.offsetX;
-        const anchorY = line.y;
-
-        glyph.vx += (anchorX - glyph.x) * 0.09 * step;
-        glyph.vy += (anchorY - glyph.y) * 0.09 * step;
-        glyph.vx *= 0.86;
-        glyph.vy *= 0.86;
-        glyph.x += glyph.vx * step;
-        glyph.y += glyph.vy * step;
-
+      lines.forEach((line) => {
         ctx.globalAlpha = line.alpha;
         ctx.fillStyle = line.color;
         ctx.textBaseline = "middle";
-        ctx.font = `${line.weight} ${line.size}px ${line.family}, CircularBook, Helvetica, Arial, sans-serif`;
-        ctx.fillText(glyph.char, glyph.x, glyph.y);
+        ctx.font = line.fontSpec;
+        line.chars.forEach((char, idx) => {
+          const x = line.x + line.offsets[idx];
+          const y = line.y;
+          ctx.fillText(char, x, y);
+        });
       });
 
       ctx.globalAlpha = 1;
