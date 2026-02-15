@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CV Case Study Style</title>
+    <title>A.T.J / Internship Campaign</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -27,9 +27,9 @@
         <div class="nav__expanded" aria-hidden="true">
           <div class="nav__expanded-blue">
             <a class="nav__link" href="#profile">Profile</a>
-            <a class="nav__link" href="#experience">Experience</a>
-            <a class="nav__link" href="#work">Selected Work</a>
-            <a class="nav__link" href="#highlights">Highlights</a>
+            <a class="nav__link" href="#experience">Timeline</a>
+            <a class="nav__link" href="#work">Interactive CV</a>
+            <a class="nav__link" href="#highlights">Impact</a>
             <a class="nav__link" href="#contact">Contact</a>
 
             <div class="nav__socials">
@@ -40,11 +40,11 @@
                   alt="LinkedIn"
                 />
               </a>
-              <a class="nav__social-link" href="#" aria-label="GitHub profile">
+              <a class="nav__social-link" href="#" aria-label="Portfolio profile">
                 <img
                   class="nav__social-image"
                   src="https://www.160over90.com/wp-content/themes/160over90-2021/src/images/splash/X.svg"
-                  alt="GitHub"
+                  alt="Portfolio"
                 />
               </a>
             </div>
@@ -66,15 +66,15 @@
       </nav>
 
       <section class="background-gif background-gif--absolute background-gif--absolute-shorter-project" aria-hidden="true">
-        <img
-          class="background-gif--project-static"
-          src="https://www.160over90.com/wp-content/uploads/2024/09/Jamison-StPats-0.jpg"
-          alt=""
-        />
+        <canvas id="ascii-hero-canvas" class="ascii-hero-canvas"></canvas>
+        <div class="ascii-overlay">
+          <span>Oxford</span><span>LSE</span><span>Copywriter</span><span>Media</span><span>Culture</span>
+          <span>Storytelling</span><span>PR</span><span>Research</span><span>160over90</span><span>Cricket</span>
+        </div>
       </section>
 
       <section class="hero hero--shorter-project" role="banner">
-        <h1 class="hero__header">Max Kirkby / Curriculum Vitae</h1>
+        <h1 class="hero__header clip-reveal">ATJ / Internship Campaign Portfolio</h1>
       </section>
     </div>
 
@@ -82,41 +82,62 @@
       <div class="container">
         <div class="row">
           <div class="work-intro__logo col-lg-4">
-            <img src="https://www.160over90.com/wp-content/uploads/2024/09/Jameson-logo-BW.png" alt="Monogram mark" />
+            <div class="monogram-card fade-in-section" id="monogram-card">
+              <svg id="atj-monogram" viewBox="0 0 240 240" aria-label="ATJ Monogram">
+                <path d="M32 196 L88 44 L144 196" />
+                <path d="M56 130 L120 130" />
+                <path d="M166 44 L166 196" />
+                <path d="M132 44 L200 44" />
+                <path d="M200 44 L200 160 Q200 198 162 198 Q140 198 124 184" />
+              </svg>
+              <p class="monogram-label">A.T.J</p>
+            </div>
           </div>
-          <div class="col-lg-8 text__p work-intro__intro">
+          <div class="col-lg-8 text__p work-intro__intro fade-in-section">
             <p>
-              PhD researcher in computational neuroscience focused on hierarchical planning, decision-making, and neural
-              representations in complex behavioral tasks.
+              Communications-focused Media and Culture student with experience in social media management, strategic copy,
+              and compelling prose. I build narratives that are culturally aware, persuasive, and practical.
             </p>
             <p>
-              I design experiments end-to-end, from directed graph maze task design and large-scale behavior pipelines to
-              Neuropixels analysis, modeling, and publication-grade visualization.
+              I am seeking to bring this blend of editorial craft, research precision, and creative campaign thinking into a
+              dynamic PR role with 160over90.
             </p>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="work-billboard" id="experience">
+    <section class="work-billboard timeline-billboard" id="experience">
       <div class="container">
-        <div class="work-billboard__wrap">
-          <div class="bg-video">
-            <iframe
-              src="https://player.vimeo.com/video/1017639100?autoplay=1&muted=1&background=1&loop=1"
-              title="Background reel"
-              allow="autoplay; fullscreen; picture-in-picture"
-              loading="lazy"
-            ></iframe>
+        <div class="work-billboard__wrap timeline-shell fade-in-section">
+          <div class="timeline-header">
+            <h2 class="text__h3 clip-reveal">Timeline / Education + Work</h2>
+            <p class="text__p-reg timeline-year" id="timeline-year">2025-26</p>
           </div>
-          <span class="bg-video__overlay" style="opacity: 0.5"></span>
-
-          <button class="button-play" type="button" aria-label="Play featured video" data-modal-target="video-modal">
-            <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M25.5408 19.9905C24.8752 19.5627 24 20.0405 24 20.8317V35.1683C24 35.9595 24.8752 36.4373 25.5408 36.0095L36.6915 28.8412C37.3038 28.4475 37.3038 27.5525 36.6915 27.1588L25.5408 19.9905Z" fill="white"></path>
-              <circle cx="28" cy="28" r="27" stroke="white" stroke-width="2"></circle>
-            </svg>
-          </button>
+          <div class="timeline-track" role="tablist" aria-label="Career timeline">
+            <button class="timeline-node is-active" data-year="2025-26" data-title="MSc Gender, Media and Culture / LSE" data-body="Deepening communication theory, media representation, and cultural analysis through postgraduate study focused on public discourse and narrative power.">
+              LSE MSc
+            </button>
+            <button class="timeline-node" data-year="2022-25" data-title="BA English Language and Literature / Oxford" data-body="Developed high-level argumentation, writing discipline, close reading, and rigorous time management in a world-class tutorial environment.">
+              Oxford BA
+            </button>
+            <button class="timeline-node" data-year="2024" data-title="Advertising and Sponsorship Officer / Oxford Student Publishing" data-body="Researched and identified key advertising partners, then collaborated with business operations to secure 3 sponsorship companies.">
+              Sponsorship
+            </button>
+            <button class="timeline-node" data-year="2021-23" data-title="Copywriter and Research Analyst / Energy Storage Africa" data-body="Wrote website copy, pitched visual concepts, and analyzed regional grid and generation datasets across Southern Africa.">
+              Copy + Research
+            </button>
+            <button class="timeline-node" data-year="2026" data-title="Literary Research and Communications Assistant / Novelist Project" data-body="Conducting British Museum archival research and supporting journalistic, social, and print communication strategy for launch.">
+              Literary Project
+            </button>
+          </div>
+          <div class="timeline-detail">
+            <h3 class="timeline-title" id="timeline-title">MSc Gender, Media and Culture / LSE</h3>
+            <p class="timeline-body" id="timeline-body">
+              Deepening communication theory, media representation, and cultural analysis through postgraduate study focused
+              on public discourse and narrative power.
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -124,50 +145,175 @@
     <section class="work-gallery container" id="work">
       <div class="row">
         <div class="work-gallery__intro col-lg-4">
-          <h2 class="work-gallery__intro-title text__h3" style="color: #02471b">Storyline</h2>
-          <div class="work-gallery__intro-content text__p-reg">
+          <h2 class="work-gallery__intro-title text__h3 clip-reveal" style="color: #02471b">Interactive Storyline</h2>
+          <div class="work-gallery__intro-content text__p-reg fade-in-section">
             <p>
-              I build integrative analysis systems that connect behavior, video tracking, and electrophysiology into
-              interpretable data products. My work combines robust engineering, careful experimental logic, and clear
-              narrative communication for collaborators.
+              Instead of campaign photography, each panel demonstrates a capability: editorial precision, communication
+              strategy, research depth, data literacy, and execution across real teams and constraints.
             </p>
           </div>
-          <ul class="work-gallery__categories">
-            <li>Computational Neuroscience</li>
-            <li>Neuropixels Analysis</li>
-            <li>Behavioral Modeling</li>
-            <li>Scientific Python</li>
-            <li>Data Visualization</li>
+          <ul class="work-gallery__categories fade-in-section">
+            <li>Copywriting</li>
+            <li>PR Strategy</li>
+            <li>Social Media</li>
+            <li>Sponsorship</li>
+            <li>Research</li>
+            <li>Data Storytelling</li>
           </ul>
         </div>
 
         <div class="work-gallery__gallery col-lg-8">
           <div class="work-gallery__row">
-            <img src="https://www.160over90.com/wp-content/uploads/2024/09/Jamison-StPats-1.jpg" alt="Project visual 1" />
+            <article class="interactive-tile tile-ascii fade-in-section">
+              <p class="tile-kicker">Tile 01 / Copywriting</p>
+              <h3 class="tile-title">Hover-Triggered ASCII Editorial Panel</h3>
+              <pre class="ascii-block" aria-hidden="true">
+╔════════════════════════════════════╗
+║  CLEAN COPY / CULTURAL CONTEXT     ║
+║  TONE CALIBRATION / IMPACT         ║
+║  STORY > NOISE                     ║
+╚════════════════════════════════════╝
+              </pre>
+            </article>
           </div>
+
           <div class="work-gallery__row">
-            <img src="https://www.160over90.com/wp-content/uploads/2024/09/Jamison-StPats-2.jpg" alt="Project visual 2" />
+            <article class="interactive-tile tile-counter fade-in-section">
+              <p class="tile-kicker">Tile 02 / Social Cadence</p>
+              <h3 class="tile-title">Weekly Communication Throughput</h3>
+              <p class="tile-number"><span class="countup" data-target="30">0</span><span>+</span></p>
+              <p class="tile-caption">social media posts crafted and targeted for college communication.</p>
+            </article>
           </div>
+
           <div class="work-gallery__row">
-            <img src="https://www.160over90.com/wp-content/uploads/2024/09/Jamison-StPats-3.jpg" alt="Project visual 3" />
+            <article class="interactive-tile tile-constellation fade-in-section">
+              <p class="tile-kicker">Tile 03 / Skill Constellation</p>
+              <div class="constellation">
+                <svg class="constellation-links" viewBox="0 0 640 260" aria-hidden="true">
+                  <line x1="108" y1="54" x2="308" y2="128" />
+                  <line x1="214" y1="214" x2="308" y2="128" />
+                  <line x1="416" y1="54" x2="308" y2="128" />
+                  <line x1="526" y1="208" x2="308" y2="128" />
+                </svg>
+                <button class="skill-node skill-node-a" data-roles="Energy Storage Africa,Oxford Student Publishing">Copywriting</button>
+                <button class="skill-node skill-node-b" data-roles="Magdalen JCR,Novelist Project">Comms Strategy</button>
+                <button class="skill-node skill-node-c" data-roles="Energy Storage Africa,Novelist Project">Research</button>
+                <button class="skill-node skill-node-d" data-roles="Oxford Student Publishing,Beacons Netball Club">Operations</button>
+                <div class="skill-center">Role Match</div>
+              </div>
+              <p class="skill-detail" id="skill-detail">Hover a node to highlight where the skill was applied.</p>
+              <ul class="role-chip-list">
+                <li data-role="Energy Storage Africa">Energy Storage Africa</li>
+                <li data-role="Oxford Student Publishing">Oxford Student Publishing</li>
+                <li data-role="Magdalen JCR">Magdalen JCR</li>
+                <li data-role="Novelist Project">Novelist Project</li>
+                <li data-role="Beacons Netball Club">Beacons Netball Club</li>
+              </ul>
+            </article>
           </div>
+
           <div class="work-gallery__row work-gallery__row-double">
-            <img src="https://www.160over90.com/wp-content/uploads/2024/09/Jamison-StPats-4.jpg" alt="Project visual 4" />
-            <img src="https://www.160over90.com/wp-content/uploads/2024/09/Jamison-StPats-5.jpg" alt="Project visual 5" />
+            <article class="interactive-tile tile-type fade-in-section">
+              <p class="tile-kicker">Tile 04 / Editorial Voice</p>
+              <h3 class="tile-title">Typed Achievement Card</h3>
+              <p class="typing-line" id="typing-line" data-text="Investigated. Organised. Delivered 35+ new facilities through strategic communication."></p>
+            </article>
+
+            <article class="interactive-tile tile-channels fade-in-section" id="channel-mixer">
+              <p class="tile-kicker">Tile 05 / Channel Architecture</p>
+              <h3 class="tile-title">Comms Channel Mixer</h3>
+              <div class="channel-tabs">
+                <button class="channel-tab is-active" data-channel="journalistic">Journalistic</button>
+                <button class="channel-tab" data-channel="social">Social</button>
+                <button class="channel-tab" data-channel="print">Print</button>
+              </div>
+              <p class="channel-copy" id="channel-copy">
+                Structuring narrative arcs, claims, and evidence for long-form communication.
+              </p>
+              <div class="channel-bars">
+                <span style="--bar: 78%"></span>
+                <span style="--bar: 61%"></span>
+                <span style="--bar: 89%"></span>
+              </div>
+            </article>
           </div>
+
           <div class="work-gallery__row">
-            <img src="https://www.160over90.com/wp-content/uploads/2024/09/Jamison-StPats-6.jpg" alt="Project visual 6" />
+            <article class="interactive-tile tile-map fade-in-section">
+              <p class="tile-kicker">Tile 06 / Energy Research</p>
+              <h3 class="tile-title">Southern Africa Grid Analysis Map</h3>
+              <svg class="energy-map" viewBox="0 0 740 310" aria-label="Energy research map">
+                <rect x="0" y="0" width="740" height="310" rx="16" />
+                <path d="M78 250 L178 204 L255 228 L305 174 L410 170 L474 146 L522 172 L606 128 L668 170 L640 250 L498 270 L388 254 L286 264 L180 282 Z" />
+                <circle cx="420" cy="144" r="8" />
+                <circle cx="462" cy="122" r="8" />
+                <circle cx="356" cy="194" r="8" />
+                <circle cx="514" cy="190" r="8" />
+                <line x1="420" y1="144" x2="462" y2="122" />
+                <line x1="420" y1="144" x2="356" y2="194" />
+                <line x1="462" y1="122" x2="514" y2="190" />
+              </svg>
+              <p class="tile-caption">Mapped and analyzed 100+ contributors to regional power systems for client-facing insight.</p>
+            </article>
           </div>
+
           <div class="work-gallery__row work-gallery__row-double">
-            <img src="https://www.160over90.com/wp-content/uploads/2024/09/Jamison-StPats-7.jpg" alt="Project visual 7" />
-            <img src="https://www.160over90.com/wp-content/uploads/2024/09/Jamison-StPats-8.jpg" alt="Project visual 8" />
+            <article class="interactive-tile tile-cricket fade-in-section">
+              <p class="tile-kicker">Tile 07 / Extra-Curricular</p>
+              <h3 class="tile-title">Oxford Blue × 2</h3>
+              <svg class="cricket-arc" viewBox="0 0 360 220" aria-hidden="true">
+                <path d="M26 188 Q168 28 334 126" />
+                <circle cx="26" cy="188" r="7" />
+              </svg>
+              <p class="tile-caption">Hover to launch the trajectory.</p>
+            </article>
+
+            <article class="interactive-tile tile-slider fade-in-section">
+              <p class="tile-kicker">Tile 08 / Copy Refinement</p>
+              <h3 class="tile-title">Brief-to-Copy Slider</h3>
+              <div class="before-after" id="before-after" style="--split: 52%">
+                <div class="before-after__panel before">Dense brief language and fragmented messaging structure.</div>
+                <div class="before-after__panel after">Clear hierarchy, concise tone, and persuasive campaign copy.</div>
+              </div>
+              <input type="range" min="0" max="100" value="52" class="before-after__input" aria-label="Compare before and after copy" />
+            </article>
           </div>
+
           <div class="work-gallery__row work-gallery__row-double">
-            <img src="https://www.160over90.com/wp-content/uploads/2024/09/Jamison-StPats-9.jpg" alt="Project visual 9" />
-            <img src="https://www.160over90.com/wp-content/uploads/2024/09/Jamison-StPats-10.jpg" alt="Project visual 10" />
+            <article class="interactive-tile tile-bin-map fade-in-section">
+              <p class="tile-kicker">Tile 09 / Facilities Impact</p>
+              <h3 class="tile-title">College Bin Installation Map</h3>
+              <div class="bin-map-placeholder">
+                <p>Map slot ready for your uploaded college layout.</p>
+                <p class="bin-map-sub">Will display 35+ installation markers once asset is added.</p>
+              </div>
+            </article>
+
+            <article class="interactive-tile tile-sponsor fade-in-section">
+              <p class="tile-kicker">Tile 10 / Sponsorship</p>
+              <h3 class="tile-title">Partnership Conversion Funnel</h3>
+              <div class="sponsor-funnel">
+                <div class="funnel-bar" style="--w: 100%">
+                  <span>Prospect Research</span><span>12</span>
+                </div>
+                <div class="funnel-bar" style="--w: 58%">
+                  <span>Qualified Targets</span><span>5</span>
+                </div>
+                <div class="funnel-bar" style="--w: 35%">
+                  <span>Sponsors Secured</span><span>3</span>
+                </div>
+              </div>
+            </article>
           </div>
+
           <div class="work-gallery__row">
-            <img src="https://www.160over90.com/wp-content/uploads/2024/09/Jamison-StPats-11.jpg" alt="Project visual 11" />
+            <article class="interactive-tile tile-polish fade-in-section">
+              <p class="tile-kicker">Tile 11 / PR Readiness</p>
+              <h3 class="tile-title">Narrative Polish Engine</h3>
+              <p class="polish-line" id="polish-line">Raw message -> clear message -> memorable message.</p>
+              <button class="polish-button" id="polish-button" type="button">Refine line</button>
+            </article>
           </div>
         </div>
       </div>
@@ -177,47 +323,55 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-4 work-stats__intro">
-            <h2 class="text__h3">Bottomline</h2>
+            <h2 class="text__h3 clip-reveal">Bottomline</h2>
           </div>
           <div class="col-lg-8">
             <div class="row">
               <div class="col-lg-6 stat-wrap">
-                <div class="stat">
+                <div class="stat fade-in-section">
                   <div class="stat__top">
-                    <h3 class="text__stat" style="color: #02471b">8</h3>
+                    <h3 class="text__stat" style="color: #02471b">
+                      <span class="countup" data-target="30">0</span><span>+</span>
+                    </h3>
                   </div>
                   <div class="text__p">
-                    <p>Mouse subjects across the full directed-goal task cohort</p>
+                    <p>social media posts crafted and published.</p>
                   </div>
                 </div>
               </div>
               <div class="col-lg-6 stat-wrap">
-                <div class="stat">
+                <div class="stat fade-in-section">
                   <div class="stat__top">
-                    <h3 class="text__stat" style="color: #02471b">5</h3>
+                    <h3 class="text__stat" style="color: #02471b">
+                      £<span class="countup" data-target="500">0</span><span>+</span>
+                    </h3>
                   </div>
                   <div class="text__p">
-                    <p>Implanted Neuropixels subjects with electrophysiology data</p>
+                    <p>saved through audit, procurement, and negotiation.</p>
                   </div>
                 </div>
               </div>
               <div class="col-lg-6 stat-wrap">
-                <div class="stat">
+                <div class="stat fade-in-section">
                   <div class="stat__top">
-                    <h3 class="text__stat" style="color: #02471b">49</h3>
+                    <h3 class="text__stat" style="color: #02471b">
+                      <span class="countup" data-target="35">0</span><span>+</span>
+                    </h3>
                   </div>
                   <div class="text__p">
-                    <p>Directed graph maze nodes in a 7x7 structure</p>
+                    <p>waste disposal bins installed to resolve student issues.</p>
                   </div>
                 </div>
               </div>
               <div class="col-lg-6 stat-wrap">
-                <div class="stat">
+                <div class="stat fade-in-section">
                   <div class="stat__top">
-                    <h3 class="text__stat" style="color: #02471b">3</h3>
+                    <h3 class="text__stat" style="color: #02471b">
+                      <span class="countup" data-target="3">0</span>
+                    </h3>
                   </div>
                   <div class="text__p">
-                    <p>Core data streams: behavior, video tracking, and ephys</p>
+                    <p>key sponsorship partners identified and secured.</p>
                   </div>
                 </div>
               </div>
@@ -238,26 +392,15 @@
             />
           </div>
           <div class="splash--footer__right">
-            <div class="splash--footer__legal" id="footer-year">© 2026 Max Kirkby. All rights reserved.</div>
+            <div class="splash--footer__legal" id="footer-year">© 2026 A.T.J. All rights reserved.</div>
             <div>
               <a class="splash--footer__legal" href="#">Email</a>
               <a class="splash--footer__legal" href="#">LinkedIn</a>
-              <a class="splash--footer__legal" href="#">GitHub</a>
+              <a class="splash--footer__legal" href="#">Portfolio</a>
             </div>
           </div>
         </div>
       </footer>
-    </div>
-
-    <div class="video-modal" id="video-modal" aria-hidden="true">
-      <button class="video-modal__close" type="button" aria-label="Close video">Close</button>
-      <div class="video-modal__content">
-        <iframe
-          src="https://player.vimeo.com/video/1017639100?title=0&byline=0&portrait=0"
-          title="Featured video"
-          allow="autoplay; fullscreen; picture-in-picture"
-        ></iframe>
-      </div>
     </div>
 
     <script src="script.js"></script>
