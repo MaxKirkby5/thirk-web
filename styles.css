@@ -1375,7 +1375,7 @@ body.modal-open {
 }
 
 .tile-research {
-  min-height: 220px;
+  min-height: 190px;
   display: flex;
   flex-direction: column;
 }
@@ -1390,16 +1390,17 @@ body.modal-open {
   border: 1px solid #30313a;
   border-radius: 12px;
   background: #09090d;
-  min-height: 104px;
+  min-height: 76px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 12px;
+  padding: 6px 10px;
 }
 
 .research-icon {
-  width: min(108px, 100%);
-  aspect-ratio: 1 / 1;
+  width: auto;
+  height: 64px;
+  max-width: 100%;
   object-fit: contain;
   filter: invert(1) brightness(1.2);
 }
