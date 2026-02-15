@@ -469,13 +469,13 @@
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const phraseConfigs = [
       // ~25% smaller than previous non-name phrase sizing.
-      { text: "Jameson / St. Patrick’s Eve", color: "#1C4620", alpha: 0.78, size: 12, weight: 500 },
-      { text: "University of South Carolina", color: "#691111", alpha: 0.74, size: 12, weight: 500 },
-      { text: "Philidelphia Eagles", color: "#1E4B53", alpha: 0.72, size: 11, weight: 500 },
-      { text: "Rocket Mortgage", color: "#851E26", alpha: 0.72, size: 11, weight: 500 },
-      { text: "Marriott Bonvoy x Visa", color: "#5923B5", alpha: 0.72, size: 11, weight: 500 },
-      { text: "Annys Thirkell-Jones", color: "#EA3365", alpha: 0.95, size: 19, weight: 600 },
-      { text: "Annys Thirkell-Jones", color: "#EA3365", alpha: 0.8, size: 18, weight: 600 },
+      { text: "Jameson / St. Patrick’s Eve", color: "#1C4620", alpha: 0.78, size: 12, weight: 500, family: "CircularMedium" },
+      { text: "University of South Carolina", color: "#691111", alpha: 0.74, size: 12, weight: 500, family: "CircularMedium" },
+      { text: "Philidelphia Eagles", color: "#1E4B53", alpha: 0.72, size: 11, weight: 500, family: "CircularMedium" },
+      { text: "Rocket Mortgage", color: "#851E26", alpha: 0.72, size: 11, weight: 500, family: "CircularMedium" },
+      { text: "Marriott Bonvoy x Visa", color: "#5923B5", alpha: 0.72, size: 11, weight: 500, family: "CircularMedium" },
+      { text: "Annys Thirkell-Jones", color: "#EA3365", alpha: 0.95, size: 19, weight: 600, family: "CircularBold" },
+      { text: "Annys Thirkell-Jones", color: "#EA3365", alpha: 0.8, size: 18, weight: 600, family: "CircularBold" },
     ];
     const mouse = { x: -9999, y: -9999 };
     const lines = [];
@@ -487,27 +487,37 @@
       glyphs.length = 0;
       const laneCount = 7;
       const laneHeight = rect.height / (laneCount + 1);
+      const bounds = {
+        left: 20,
+        right: rect.width - 20,
+        top: 30,
+        bottom: rect.height - 22,
+      };
 
       phraseConfigs.forEach((config, i) => {
-        const direction = i % 2 === 0 ? 1 : -1;
-        const fontSpec = `${config.weight} ${config.size}px CircularBook, Helvetica, Arial, sans-serif`;
+        const fontSpec = `${config.weight} ${config.size}px ${config.family}, CircularBook, Helvetica, Arial, sans-serif`;
         ctx.font = fontSpec;
         const chars = [...config.text];
         const charWidths = chars.map((ch) => Math.max(3, ctx.measureText(ch).width * 0.95));
         const width = charWidths.reduce((sum, w) => sum + w, 0);
         const lane = (i % laneCount) + 1;
-        const usableWidth = Math.max(20, rect.width - width - 40);
-        const startX = 20 + ((i * 97) % usableWidth);
+        const usableWidth = Math.max(1, bounds.right - bounds.left - width);
+        const startX = bounds.left + ((i * 113) % usableWidth);
+        const startY = laneHeight * lane + (i % 2 === 0 ? -6 : 8);
+        const vx = (Math.random() * 2 - 1) * (12 + i * 1.2);
+        const vy = (Math.random() * 2 - 1) * (8 + (i % 3) * 1.4);
 
         const line = {
           ...config,
           width,
           x: startX,
-          baseY: laneHeight * lane + (i % 2 === 0 ? -6 : 8),
-          vx: (20 + i * 2.2) * direction,
+          y: startY,
+          vx,
+          vy,
           amp: 10 + (i % 3) * 4,
           freq: 0.58 + (i % 4) * 0.14,
           phase: i * 0.8,
+          bounds,
         };
         lines.push(line);
 
@@ -521,7 +531,7 @@
             offsetX,
             driftPhase: charIndex * 0.26 + i * 0.5,
             x: line.x + offsetX,
-            y: line.baseY,
+            y: line.y,
             vx: 0,
             vy: 0,
           });
@@ -547,11 +557,29 @@
       ctx.fillRect(0, 0, rect.width, rect.height);
 
       lines.forEach((line) => {
+        // Diffusion motion: slight random walk with bounded bounce.
+        line.vx += (Math.random() * 2 - 1) * 10 * dt;
+        line.vy += (Math.random() * 2 - 1) * 8 * dt;
+        line.vx = Math.max(-26, Math.min(26, line.vx)) * 0.992;
+        line.vy = Math.max(-18, Math.min(18, line.vy)) * 0.992;
         line.x += line.vx * dt;
-        if (line.vx > 0 && line.x > rect.width + 80) {
-          line.x = -line.width - 20;
-        } else if (line.vx < 0 && line.x + line.width < -80) {
-          line.x = rect.width + 20;
+        line.y += line.vy * dt;
+
+        if (line.x < line.bounds.left) {
+          line.x = line.bounds.left;
+          line.vx = Math.abs(line.vx);
+        }
+        if (line.x + line.width > line.bounds.right) {
+          line.x = line.bounds.right - line.width;
+          line.vx = -Math.abs(line.vx);
+        }
+        if (line.y < line.bounds.top) {
+          line.y = line.bounds.top;
+          line.vy = Math.abs(line.vy);
+        }
+        if (line.y > line.bounds.bottom) {
+          line.y = line.bounds.bottom;
+          line.vy = -Math.abs(line.vy);
         }
       });
 
@@ -559,32 +587,32 @@
         const line = glyph.line;
         const anchorX = line.x + glyph.offsetX;
         const anchorY =
-          line.baseY +
+          line.y +
           Math.sin(now * 0.001 * line.freq + line.phase) * line.amp +
           Math.sin(now * 0.002 + glyph.driftPhase) * 2.2;
 
         const dx = glyph.x - mouse.x;
         const dy = glyph.y - mouse.y;
         const distSq = dx * dx + dy * dy;
-        const repelRadius = 165;
+        const repelRadius = 230;
         if (distSq < repelRadius * repelRadius) {
           const dist = Math.sqrt(distSq) || 1;
           const force = Math.pow(1 - dist / repelRadius, 2);
-          glyph.vx += (dx / dist) * 24 * force * step;
-          glyph.vy += (dy / dist) * 16 * force * step;
+          glyph.vx += (dx / dist) * 64 * force * step;
+          glyph.vy += (dy / dist) * 42 * force * step;
         }
 
-        glyph.vx += (anchorX - glyph.x) * 0.12 * step;
-        glyph.vy += (anchorY - glyph.y) * 0.12 * step;
-        glyph.vx *= 0.84;
-        glyph.vy *= 0.84;
+        glyph.vx += (anchorX - glyph.x) * 0.09 * step;
+        glyph.vy += (anchorY - glyph.y) * 0.09 * step;
+        glyph.vx *= 0.86;
+        glyph.vy *= 0.86;
         glyph.x += glyph.vx * step;
         glyph.y += glyph.vy * step;
 
         ctx.globalAlpha = line.alpha;
         ctx.fillStyle = line.color;
         ctx.textBaseline = "middle";
-        ctx.font = `${line.weight} ${line.size}px CircularBook, Helvetica, Arial, sans-serif`;
+        ctx.font = `${line.weight} ${line.size}px ${line.family}, CircularBook, Helvetica, Arial, sans-serif`;
         ctx.fillText(glyph.char, glyph.x, glyph.y);
       });
 
@@ -605,5 +633,12 @@
     resizeCanvas();
     window.requestAnimationFrame(draw);
     window.addEventListener("resize", resizeCanvas);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        // Rebuild glyph metrics with loaded Circular fonts for precise rendering.
+        const rect = heroCanvas.getBoundingClientRect();
+        createStructuredGlyphs(rect);
+      });
+    }
   }
 })();
