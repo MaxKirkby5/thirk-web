@@ -468,11 +468,12 @@
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const phraseConfigs = [
-      { text: "Jameson / St. Patrick’s Eve", color: "#1C4620", alpha: 0.78, size: 16, weight: 500 },
-      { text: "University of South Carolina", color: "#691111", alpha: 0.74, size: 16, weight: 500 },
-      { text: "Philidelphia Eagles", color: "#1E4B53", alpha: 0.72, size: 15, weight: 500 },
-      { text: "Rocket Mortgage", color: "#851E26", alpha: 0.72, size: 15, weight: 500 },
-      { text: "Marriott Bonvoy x Visa", color: "#5923B5", alpha: 0.72, size: 15, weight: 500 },
+      // ~25% smaller than previous non-name phrase sizing.
+      { text: "Jameson / St. Patrick’s Eve", color: "#1C4620", alpha: 0.78, size: 12, weight: 500 },
+      { text: "University of South Carolina", color: "#691111", alpha: 0.74, size: 12, weight: 500 },
+      { text: "Philidelphia Eagles", color: "#1E4B53", alpha: 0.72, size: 11, weight: 500 },
+      { text: "Rocket Mortgage", color: "#851E26", alpha: 0.72, size: 11, weight: 500 },
+      { text: "Marriott Bonvoy x Visa", color: "#5923B5", alpha: 0.72, size: 11, weight: 500 },
       { text: "Annys Thirkell-Jones", color: "#EA3365", alpha: 0.95, size: 19, weight: 600 },
       { text: "Annys Thirkell-Jones", color: "#EA3365", alpha: 0.8, size: 18, weight: 600 },
     ];
@@ -489,31 +490,37 @@
 
       phraseConfigs.forEach((config, i) => {
         const direction = i % 2 === 0 ? 1 : -1;
-        const charStep = config.size * 0.64;
-        const width = config.text.length * charStep;
+        const fontSpec = `${config.weight} ${config.size}px CircularBook, Helvetica, Arial, sans-serif`;
+        ctx.font = fontSpec;
+        const chars = [...config.text];
+        const charWidths = chars.map((ch) => Math.max(3, ctx.measureText(ch).width * 0.95));
+        const width = charWidths.reduce((sum, w) => sum + w, 0);
         const lane = (i % laneCount) + 1;
-        const startX = direction > 0 ? -width - 60 - i * 20 : rect.width + 80 + i * 22;
+        const usableWidth = Math.max(20, rect.width - width - 40);
+        const startX = 20 + ((i * 97) % usableWidth);
 
         const line = {
           ...config,
-          charStep,
           width,
           x: startX,
           baseY: laneHeight * lane + (i % 2 === 0 ? -6 : 8),
-          vx: (14 + i * 1.8) * direction,
+          vx: (20 + i * 2.2) * direction,
           amp: 10 + (i % 3) * 4,
           freq: 0.58 + (i % 4) * 0.14,
           phase: i * 0.8,
         };
         lines.push(line);
 
-        [...config.text].forEach((char, charIndex) => {
+        let offsetCursor = 0;
+        chars.forEach((char, charIndex) => {
+          const offsetX = offsetCursor;
+          offsetCursor += charWidths[charIndex];
           glyphs.push({
             line,
             char,
-            offsetX: charIndex * charStep,
+            offsetX,
             driftPhase: charIndex * 0.26 + i * 0.5,
-            x: line.x + charIndex * charStep,
+            x: line.x + offsetX,
             y: line.baseY,
             vx: 0,
             vy: 0,
@@ -542,9 +549,9 @@
       lines.forEach((line) => {
         line.x += line.vx * dt;
         if (line.vx > 0 && line.x > rect.width + 80) {
-          line.x = -line.width - 80;
+          line.x = -line.width - 20;
         } else if (line.vx < 0 && line.x + line.width < -80) {
-          line.x = rect.width + 80;
+          line.x = rect.width + 20;
         }
       });
 
@@ -577,7 +584,7 @@
         ctx.globalAlpha = line.alpha;
         ctx.fillStyle = line.color;
         ctx.textBaseline = "middle";
-        ctx.font = `${line.weight} ${line.size}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`;
+        ctx.font = `${line.weight} ${line.size}px CircularBook, Helvetica, Arial, sans-serif`;
         ctx.fillText(glyph.char, glyph.x, glyph.y);
       });
 
